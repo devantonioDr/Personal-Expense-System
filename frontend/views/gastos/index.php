@@ -18,13 +18,14 @@ $this->params['breadcrumbs'][] = $this->title;
 ]); ?>
 
 
+<?php echo $this->render('_search', ['model' => $searchModel]); ?>
+
 <div class="gastos-index box box-primary">
     <div class="box-header with-border">
         <?= Html::a('Registrar Gasto', ['create'], ['class' => 'btn btn-success btn-flat']) ?>
     </div>
     <div class="box-body table-responsive no-padding">
-        <?php // echo $this->render('_search', ['model' => $searchModel]); 
-        ?>
+      
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             // 'filterModel' => $searchModel,

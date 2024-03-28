@@ -7,12 +7,12 @@ use yii\base\Application;
 
 class GastoCalculator
 {
-    protected $gastoModel;
+    protected $activeQuery;
     protected $application;
 
-    public function __construct(Gastos $gastoModel, Application $application)
+    public function __construct(\yii\db\ActiveQuery $activeQuery, Application $application)
     {
-        $this->gastoModel = $gastoModel;
+        $this->activeQuery = $activeQuery;
         $this->application = $application;
     }
 
@@ -23,14 +23,10 @@ class GastoCalculator
      */
     public function calcularGastoMesActual()
     {
-        $mesActual = date('Y-m-01');
-        $hoy = date('Y-m-d');
+        $query = clone $this->activeQuery;
 
-        $totalGasto = $this->gastoModel->find()
+        $totalGasto = $query
             ->select(['SUM(monto)'])
-            ->where(['>=', 'FROM_UNIXTIME(created_at)', $mesActual . ' 00:00:00'])
-            ->andWhere(['<=', 'FROM_UNIXTIME(created_at)', $hoy . ' 23:59:59'])
-            ->andWhere(['user_id' => $this->application->user->id])
             ->scalar();
 
 
@@ -44,12 +40,16 @@ class GastoCalculator
      */
     public function calcularGastoDiaActual()
     {
-        $hoy = date('Y-m-d');
+        $currentTimestamp = time();
+        $startOfDay = strtotime('midnight', $currentTimestamp);
+        $endOfDay = strtotime('tomorrow', $startOfDay) - 1;
 
-        $totalGasto = $this->gastoModel->find()
+        $query = clone $this->activeQuery;
+
+        $totalGasto = $query
             ->select(['SUM(monto)'])
-            ->where(['>=', 'FROM_UNIXTIME(created_at)', $hoy . ' 00:00:00'])
-            ->andWhere(['<=', 'FROM_UNIXTIME(created_at)', $hoy . ' 23:59:59'])
+            ->where(['>=', 'created_at', $startOfDay])
+            ->andWhere(['<=', 'created_at', $endOfDay])
             ->andWhere(['user_id' => $this->application->user->id])
             ->scalar();
 

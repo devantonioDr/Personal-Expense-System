@@ -1,10 +1,12 @@
 <?php
+
 namespace common\components;
 
 
 
-class MyHelpers {
-// Assuming this is in a helper class or a component
+class MyHelpers
+{
+    // Assuming this is in a helper class or a component
 
     public static function timeAgo($timestamp)
     {
@@ -36,4 +38,25 @@ class MyHelpers {
         }
     }
 
+    public static function makeYearRange($before = 5, $after = 5)
+    {
+        $range = range(date('Y') - $before, date('Y') + $after);
+
+        $output = [];
+
+        foreach ($range as $idx => $value) {
+            $output[$value] = $value;
+        }
+
+        return $output;
+    }
+
+    public static function makeMonths()
+    {
+        return  [
+            '01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April',
+            '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
+            '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December',
+        ];
+    }
 }

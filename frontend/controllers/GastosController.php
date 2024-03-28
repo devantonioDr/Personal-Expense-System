@@ -6,6 +6,7 @@ use common\components\GastoCalculator;
 use Yii;
 use frontend\models\Gastos;
 use frontend\models\GastosSearch;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -36,15 +37,45 @@ class GastosController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new GastosSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,Yii::$app->user->id);
 
-        $gastoCalculator = new GastoCalculator($searchModel,Yii::$app);
+        $model = new GastosSearch();
+        $model->load(Yii::$app->request->queryParams);
+        $model->setDefaultValues();
+
+
+        $query = $model->baseQuery();
+        $query->andWhere(['user_id' => Yii::$app->user->id]);
+
+
+        $year =  $model->year;
+        $month = $model->month;
+
+        $timestamp = mktime(0, 0, 0, $month, 1, $year);
+
+        // Get the beginning of the month timestamp
+        $startOfMonth = mktime(0, 0, 0, $month, 1, $year);
+
+
+        // Get the end of the month timestamp
+        $endOfMonth = mktime(23, 59, 59, $month, date('t', $timestamp), $year);
+
+
+        $query->andWhere(['>=', 'created_at', $startOfMonth]) // Beginning of the month
+            ->andWhere(['<', 'created_at', $endOfMonth]) // End of the month (plus one day)
+            ->all();
+
+
+        $gastoCalculator = new GastoCalculator($query, Yii::$app);
+
+        $query->andFilterWhere(['like', 'descripcion', $model->descripcion]);
 
         return $this->render('index', [
-            'gastoCalculator'=>$gastoCalculator,
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+            'gastoCalculator' => $gastoCalculator,
+            'searchModel' => $model,
+            'dataProvider' => new ActiveDataProvider([
+                'query' => $query,
+                'sort' => ['defaultOrder' => ['id' => SORT_DESC]]
+            ]),
         ]);
     }
 
@@ -74,7 +105,7 @@ class GastosController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            var_dump($model->errors);
+            // var_dump($model->errors);
             return $this->render('create', [
                 'model' => $model,
             ]);

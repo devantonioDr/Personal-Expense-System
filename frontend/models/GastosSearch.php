@@ -12,15 +12,17 @@ use frontend\models\Gastos;
  */
 class GastosSearch extends Gastos
 {
+    public $year = null;
+    public $month = null;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'user_id', 'created_at', 'updated_at'], 'integer'],
-            [['descripcion'], 'safe'],
-            [['monto'], 'number'],
+            // [['id', 'user_id', 'created_at', 'updated_at'], 'integer'],
+            [['year','month','descripcion'], 'safe'],
+            // [['monto'], 'number'],
         ];
     }
 
@@ -29,8 +31,20 @@ class GastosSearch extends Gastos
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
+    }
+
+    public function baseQuery(){
+        return Gastos::find();
+    }
+
+    public function setDefaultValues(){
+        if (empty($this->month)) {
+            $this->month = date('m'); // Set default month to current month (e.g., '03' for March)
+        }
+        if (empty($this->year)) {
+            $this->year = date('Y'); // Set default year to current year (e.g., '2024')
+        }
     }
 
     /**
@@ -42,13 +56,13 @@ class GastosSearch extends Gastos
      */
     public function search($params,$user_id = null)
     {
-        $query = Gastos::find();
+        $query = $this->baseQuery();
 
         if($user_id){
             $query->where(['user_id' => $user_id]);
         }
 
-        // add conditions that should always apply here
+        $this->setDefaultValues();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -64,15 +78,15 @@ class GastosSearch extends Gastos
         }
 
         // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'user_id' => $this->user_id,
-            'monto' => $this->monto,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ]);
+        // $query->andFilterWhere([
+        //     'id' => $this->id,
+        //     'user_id' => $this->user_id,
+        //     'monto' => $this->monto,
+        //     'created_at' => $this->created_at,
+        //     'updated_at' => $this->updated_at,
+        // ]);
 
-        $query->andFilterWhere(['like', 'descripcion', $this->descripcion]);
+        // $query->andFilterWhere(['like', 'descripcion', $this->descripcion]);
 
         return $dataProvider;
     }
