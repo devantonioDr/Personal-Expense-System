@@ -5,12 +5,13 @@
         'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
         'items' => [
           [
-            'label' => 'Gastos',
+            'label' => 'Finanzas Personales',
             'icon' => 'align-justify',
             'url' => '#',
             'items' => [
-              ['label' => 'Crear', 'icon' => 'circle', 'url' => ['/gastos/create'],],
-              ['label' => 'Lista', 'icon' => 'circle', 'url' => ['/gastos/index'],],
+              ['label' => 'Categorias', 'icon' => 'circle', 'url' => ['/categoria-gastos/index'],],
+              ['label' => 'Dashboard', 'icon' => 'circle', 'url' => ['/categoria-gastos/dashboard']],
+              ['label' => 'Gastos', 'icon' => 'circle', 'url' => ['/gastos/index'],],
             ]
           ]
         ],

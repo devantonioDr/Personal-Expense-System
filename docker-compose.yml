@@ -28,6 +28,7 @@ services:
       - 3389:3306
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - TZ=America/Santo_Domingo
     command: --max_allowed_packet=64M
     volumes:
       # - "./db:/docker-entrypoint-initdb.d" # this is how we persist an SQL db even when the container stops

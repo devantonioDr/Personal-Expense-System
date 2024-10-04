@@ -1,8 +1,7 @@
 <?php
 
-namespace common\components;
+namespace common\models\Gastos;
 
-use frontend\models\Gastos;
 use yii\base\Application;
 
 class GastoCalculator
@@ -48,8 +47,8 @@ class GastoCalculator
 
         $totalGasto = $query
             ->select(['SUM(monto)'])
-            ->where(['>=', 'created_at', $startOfDay])
-            ->andWhere(['<=', 'created_at', $endOfDay])
+            ->where(['>=', 'fecha_pago', date('Y-m-d', $startOfDay)])
+            ->andWhere(['<=', 'fecha_pago', date('Y-m-d', $endOfDay)])
             ->andWhere(['user_id' => $this->application->user->id])
             ->scalar();
 

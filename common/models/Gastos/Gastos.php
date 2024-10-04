@@ -1,6 +1,6 @@
 <?php
 
-namespace frontend\models;
+namespace common\models\Gastos;
 
 use common\models\User;
 use Yii;
@@ -13,13 +13,21 @@ use yii\behaviors\TimestampBehavior;
  * @property int $user_id
  * @property string $descripcion
  * @property float $monto
+ * @property string $fecha_pago  // Nueva propiedad para la fecha de pago
  * @property int $created_at
  * @property int $updated_at
- *
+ * @property int|null $categoria_id  // Nueva propiedad para la categoría
+
  * @property User $user
+ * @property CategoriasGastos $categoria // Relación con la categoría
  */
 class Gastos extends \yii\db\ActiveRecord
 {
+
+    public $year; // Añade year y month si es necesario
+    public $month;
+    public $categoria_nombre; // Propiedad para el nombre de la categoría
+
     /**
      * {@inheritdoc}
      */
@@ -32,7 +40,7 @@ class Gastos extends \yii\db\ActiveRecord
     {
         return [
             'timestamp' => [
-                'class' => TimestampBehavior::class
+                'class' => TimestampBehavior::class,
             ],
         ];
     }
@@ -43,10 +51,12 @@ class Gastos extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'descripcion', 'monto'], 'required'],
-            [['user_id', 'created_at', 'updated_at'], 'integer'],
+            [['user_id', 'descripcion', 'monto', 'fecha_pago'], 'required'],
+            [['user_id', 'created_at', 'updated_at', 'categoria_id'], 'integer'],
             [['monto'], 'number'],
             [['descripcion'], 'string', 'max' => 255],
+            [['fecha_pago'], 'date', 'format' => 'php:Y-m-d'], // Validación para la fecha
+            [['categoria_id'], 'exist', 'skipOnError' => true, 'targetClass' => CategoriasGastos::class, 'targetAttribute' => ['categoria_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -61,6 +71,8 @@ class Gastos extends \yii\db\ActiveRecord
             'user_id' => 'ID de Usuario',
             'descripcion' => 'Descripción',
             'monto' => 'Monto',
+            'fecha_pago' => 'Fecha de Pago', // Etiqueta para la nueva propiedad
+            'categoria_id' => 'Categoría', // Etiqueta para la nueva propiedad
             'created_at' => 'Creado en',
             'updated_at' => 'Actualizado en',
         ];
@@ -74,5 +86,15 @@ class Gastos extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
+
+    /**
+     * Gets query for [[Categoria]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoria()
+    {
+        return $this->hasOne(CategoriasGastos::class, ['id' => 'categoria_id']);
     }
 }

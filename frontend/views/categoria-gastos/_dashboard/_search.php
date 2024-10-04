@@ -19,7 +19,7 @@ use yii\widgets\ActiveForm;
                 <div class="gastos-search">
 
                     <?php $form = ActiveForm::begin([
-                        'action' => ['index'],
+                        'action' => ['dashboard'],
                         'method' => 'get',
                     ]); ?>
 
@@ -48,15 +48,6 @@ use yii\widgets\ActiveForm;
                     </div>
 
 
-
-
-
-                    <div class="form-group">
-                        <?php
-                        echo $form->field($model, 'descripcion')->textarea();
-                        ?>
-                    </div>
-
                     <!-- Filtro de Categoría -->
                     <div class="form-group">
                         <?php
@@ -64,7 +55,7 @@ use yii\widgets\ActiveForm;
                         $categorias = CategoriasGastos::find()->all();
 
                         // Utilizar Select2 para el filtro de categoría
-                        echo $form->field($model, 'categoria_id')->widget(Select2::classname(), [
+                        echo $form->field($model, 'id')->widget(Select2::classname(), [
                             'data' => \yii\helpers\ArrayHelper::map($categorias, 'id', 'nombre'),
                             'options' => ['placeholder' => 'Seleccionar categoría...'],
                             'pluginOptions' => [

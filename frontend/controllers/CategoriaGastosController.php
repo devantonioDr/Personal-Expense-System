@@ -3,20 +3,20 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Gastos\Gastos;
-use common\models\Gastos\GastosSearch;
+use common\models\Gastos\CategoriasGastos;
+use common\models\Gastos\CategoriasGastosDashboardSearch;
+use common\models\Gastos\CategoriasGastosSearch;
 use common\models\Gastos\GastoCalculator;
-
-use yii\data\ActiveDataProvider;
+use common\models\Gastos\GastosSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\web\Response;
+use yii\helpers\VarDumper;
 
 /**
- * GastosController implements the CRUD actions for Gastos model.
+ * CategoriaGastosController implements the CRUD actions for CategoriasGastos model.
  */
-class GastosController extends Controller
+class CategoriaGastosController extends Controller
 {
     /**
      * @inheritdoc
@@ -34,40 +34,22 @@ class GastosController extends Controller
     }
 
     /**
-     * Lists all Gastos models.
+     * Lists all CategoriasGastos models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $model = new GastosSearch();
-        $model->load(Yii::$app->request->queryParams);
-        $model->setDefaultValues();
-
-        // Filtrar por el usuario actual y el rango de fechas
-        $dataProvider = $model->search(Yii::$app->user->id);
-
-        // Check if it's an AJAX request
-        if (Yii::$app->request->isAjax) {
-            return $this->renderPartial('_grid', [
-                'dataProvider' => $dataProvider,
-                'searchModel' => $model,
-            ]);
-        }
-
-        // Calcular el total de gastos
-        $gastoCalculator = new GastoCalculator($dataProvider->query, Yii::$app);
-
-
+        $searchModel = new CategoriasGastosSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'gastoCalculator' => $gastoCalculator,
-            'searchModel' => $model,
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
 
     /**
-     * Displays a single Gastos model.
+     * Displays a single CategoriasGastos model.
      * @param int $id ID
      * @return mixed
      */
@@ -79,20 +61,17 @@ class GastosController extends Controller
     }
 
     /**
-     * Creates a new Gastos model.
+     * Creates a new CategoriasGastos model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Gastos();
-
-        $model->user_id = Yii::$app->user->id;
+        $model = new CategoriasGastos();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['update', 'id' => $model->id]);
         } else {
-            // var_dump($model->errors);
             return $this->render('create', [
                 'model' => $model,
             ]);
@@ -100,7 +79,7 @@ class GastosController extends Controller
     }
 
     /**
-     * Updates an existing Gastos model.
+     * Updates an existing CategoriasGastos model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return mixed
@@ -119,7 +98,7 @@ class GastosController extends Controller
     }
 
     /**
-     * Deletes an existing Gastos model.
+     * Deletes an existing CategoriasGastos model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return mixed
@@ -131,41 +110,50 @@ class GastosController extends Controller
         return $this->redirect(['index']);
     }
 
-    public function actionUpdateCategory()
+
+    /**
+     * Lists all Gastos models.
+     * @return mixed
+     */
+    public function actionDashboard()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON; // Para responder en formato JSON
+        $model = new CategoriasGastosDashboardSearch();
+        $model->load(Yii::$app->request->queryParams);
+        $model->setDefaultValues();
 
+        // Filtrar por el usuario actual y el rango de fechas
+        $dataProvider = $model->search(Yii::$app->user->id);
+
+        // Obtener la data del DataProvider por adelantado para uso posterior
+        $data = $dataProvider->getModels();
+
+        // Check if it's an AJAX request
         if (Yii::$app->request->isAjax) {
-            $id = Yii::$app->request->post('id'); // ID del gasto
-            $categoriaId = Yii::$app->request->post('categoria_id'); // ID de la categoría
-
-            $gasto = Gastos::findOne($id);
-            if ($gasto !== null) {
-                $gasto->categoria_id = $categoriaId; // Actualiza la categoría
-
-                if ($gasto->save()) {
-                    return ['success' => true, 'message' => 'Categoría actualizada correctamente.'];
-                } else {
-                    return ['success' => false, 'message' => 'Error al actualizar la categoría.'];
-                }
-            } else {
-                return ['success' => false, 'message' => 'Gasto no encontrado.'];
-            }
+            return $this->renderPartial('_dashboard/_grid', [
+                'data' => $data,
+                'dataProvider' => $dataProvider,
+                'searchModel' => $model,
+            ]);
         }
 
-        throw new NotFoundHttpException('La solicitud no es válida.');
+        return $this->render('_dashboard/index', [
+            'data' => $data,
+            'gastoCalculator' => new GastoCalculator($dataProvider->query, Yii::$app),
+            'searchModel' => $model,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**
-     * Finds the Gastos model based on its primary key value.
+     * Finds the CategoriasGastos model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Gastos the loaded model
+     * @return CategoriasGastos the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Gastos::findOne($id)) !== null) {
+        if (($model = CategoriasGastos::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

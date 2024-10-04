@@ -22,6 +22,7 @@ class AppAsset extends BaseAdminLteAsset
     public $js = [
         'js/adminlte.min.js',
         '/js/imask.js',
+        '/js/chart.js/Chart.js',
         '/js/site.js',
     ];
     public $depends = [

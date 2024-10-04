@@ -4,7 +4,7 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $model frontend\models\Gastos */
+/* @var $model common\models\Gastos\Gastos */
 
 $this->title = 'Insertar Gasto';
 $this->params['breadcrumbs'][] = ['label' => 'Gastos', 'url' => ['index']];

@@ -2,51 +2,39 @@
 
 namespace console\controllers;
 
-use frontend\models\Gastos;
+use common\models\Gastos\Gastos;
+use Yii;
 use yii\console\Controller;
-use yii\db\Expression;
-use yii\helpers\Console;
 
 class GastoController extends Controller
 {
-
-    public function actionIndex($count)
+    public function actionIndex()
     {
-        $this->stdout("Generating and inserting $count fake Gastos records...\n", Console::FG_YELLOW);
+        // Set the time zone to America/Santo_Domingo
+        date_default_timezone_set('America/Santo_Domingo');
 
-        $currentMonthStart = strtotime(date('Y-m-01')); // Timestamp for the start of the current month
-        $currentMonthEnd = strtotime(date('Y-m-t'));    // Timestamp for the end of the current month
-        
-        for ($i = 0; $i < $count; $i++) {
-            $gasto = new Gastos();
-            $gasto->detachBehavior('timestampBehavior');
-            $gasto->user_id = 1; // Set the user_id as needed
-            $gasto->descripcion = 'Fake Gasto ' . ($i + 1);
-            $gasto->monto = rand(10, 100);
-        
-            // Generate a random timestamp within the current month
-            $randomTimestamp = rand($currentMonthStart, $currentMonthEnd);
-            $gasto->created_at = $randomTimestamp;
-        
-            if ($gasto->save()) {
-                $this->stdout("Inserted Gasto with ID: {$gasto->id}\n", Console::FG_GREEN);
-            } else {
-                $this->stderr("Error inserting Gasto:\n");
-                foreach ($gasto->errors as $errors) {
-                    foreach ($errors as $error) {
-                        $this->stderr("  - $error\n");
-                    }
-                }
+        // Fetch all records with non-null created_at
+        $gastos = Gastos::find()->where(['is not', 'created_at', null])->all();
+
+        var_dump(count($gastos));
+
+        foreach ($gastos as $gasto) {
+            // Convert Unix timestamp to DateTime object
+            $dateTime = (new \DateTime("@{$gasto->created_at}"))->setTimezone(new \DateTimeZone('America/Santo_Domingo'));
+            // Format the date to YYYY-MM-DD
+            $formattedDate = $dateTime->format('Y-m-d');
+
+            // Update the fecha_pago field
+            $gasto->fecha_pago = $formattedDate;
+
+            // Save the record
+            if (!$gasto->save()) {
+                var_dump($gasto->errors);
+                // Log the error if saving fails
+                Yii::error("Failed to save gasto ID {$gasto->id}: " . json_encode($gasto->errors));
             }
         }
-        
-        $this->stdout("Done.\n", Console::FG_YELLOW);
-       
+
+        echo "Conversion complete. Updated records: " . count($gastos) . "\n";
     }
-
-
-    
 }
-
-
-
