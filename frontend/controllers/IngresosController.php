@@ -3,20 +3,16 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Gastos\Gastos;
-use common\models\Gastos\GastosSearch;
-use common\models\Gastos\GastoCalculator;
 use common\models\Ingresos\Ingresos;
-use yii\data\ActiveDataProvider;
+use common\models\Ingresos\IngresosSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\web\Response;
 
 /**
- * GastosController implements the CRUD actions for Gastos model.
+ * IngresosController implements the CRUD actions for Ingresos model.
  */
-class GastosController extends Controller
+class IngresosController extends Controller
 {
     /**
      * @inheritdoc
@@ -34,32 +30,22 @@ class GastosController extends Controller
     }
 
     /**
-     * Lists all Gastos models.
+     * Lists all Ingresos models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $model = new GastosSearch();
-        $model->load(Yii::$app->request->queryParams);
-        $model->setDefaultValues();
+        $searchModel = new IngresosSearch();
+        $searchModel->load(Yii::$app->request->queryParams);
+        $searchModel->setDefaultValues();
 
         // Filtrar por el usuario actual y el rango de fechas
-        $dataProvider = $model->search(Yii::$app->user->id);
+        $dataProvider = $searchModel->search(Yii::$app->user->id);
 
-        // Check if it's an AJAX request
-        if (Yii::$app->request->isAjax) {
-            return $this->renderPartial('_grid', [
-                'dataProvider' => $dataProvider,
-                'searchModel' => $model,
-            ]);
-        }
-
-        // Calcular el total de gastos
-        $gastoCalculator = new GastoCalculator($dataProvider->query, Yii::$app);
-
+    
         // Obtener el ingreso total del mes actual
-        $year = Yii::$app->request->get('GastosSearch')['year'] ?? date('Y');
-        $month = Yii::$app->request->get('GastosSearch')['month'] ?? date('m');
+        $year = Yii::$app->request->get('IngresosSearch')['year'] ?? date('Y');
+        $month = Yii::$app->request->get('IngresosSearch')['month'] ?? date('m');
 
         // Construct the start and end dates for the selected month
         $currentMonthStart = "{$year}-{$month}-01";
@@ -69,18 +55,15 @@ class GastosController extends Controller
             ->where(['between', 'fecha_pago', $currentMonthStart, $currentMonthEnd])
             ->sum('monto');
 
-
-
         return $this->render('index', [
-            'gastoCalculator' => $gastoCalculator,
-            'searchModel' => $model,
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'totalIngresoMes' => $totalIngresoMes,
         ]);
     }
 
     /**
-     * Displays a single Gastos model.
+     * Displays a single Ingresos model.
      * @param int $id ID
      * @return mixed
      */
@@ -92,20 +75,19 @@ class GastosController extends Controller
     }
 
     /**
-     * Creates a new Gastos model.
+     * Creates a new Ingresos model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Gastos();
+        $model = new Ingresos();
 
         $model->user_id = Yii::$app->user->id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['update', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            // var_dump($model->errors);
             return $this->render('create', [
                 'model' => $model,
             ]);
@@ -113,7 +95,7 @@ class GastosController extends Controller
     }
 
     /**
-     * Updates an existing Gastos model.
+     * Updates an existing Ingresos model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return mixed
@@ -123,7 +105,7 @@ class GastosController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['update', 'id' => $model->id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -132,7 +114,7 @@ class GastosController extends Controller
     }
 
     /**
-     * Deletes an existing Gastos model.
+     * Deletes an existing Ingresos model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return mixed
@@ -144,41 +126,16 @@ class GastosController extends Controller
         return $this->redirect(['index']);
     }
 
-    public function actionUpdateCategory()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON; // Para responder en formato JSON
-
-        if (Yii::$app->request->isAjax) {
-            $id = Yii::$app->request->post('id'); // ID del gasto
-            $categoriaId = Yii::$app->request->post('categoria_id'); // ID de la categoría
-
-            $gasto = Gastos::findOne($id);
-            if ($gasto !== null) {
-                $gasto->categoria_id = $categoriaId; // Actualiza la categoría
-
-                if ($gasto->save()) {
-                    return ['success' => true, 'message' => 'Categoría actualizada correctamente.'];
-                } else {
-                    return ['success' => false, 'message' => 'Error al actualizar la categoría.'];
-                }
-            } else {
-                return ['success' => false, 'message' => 'Gasto no encontrado.'];
-            }
-        }
-
-        throw new NotFoundHttpException('La solicitud no es válida.');
-    }
-
     /**
-     * Finds the Gastos model based on its primary key value.
+     * Finds the Ingresos model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param int $id ID
-     * @return Gastos the loaded model
+     * @return Ingresos the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Gastos::findOne($id)) !== null) {
+        if (($model = Ingresos::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

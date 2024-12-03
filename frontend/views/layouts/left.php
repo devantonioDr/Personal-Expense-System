@@ -12,6 +12,7 @@
               ['label' => 'Categorias', 'icon' => 'circle', 'url' => ['/categoria-gastos/index'],],
               ['label' => 'Dashboard', 'icon' => 'circle', 'url' => ['/categoria-gastos/dashboard']],
               ['label' => 'Gastos', 'icon' => 'circle', 'url' => ['/gastos/index'],],
+              ['label' => 'Ingresos', 'icon' => 'circle', 'url' => ['/ingresos/index'],],
             ]
           ]
         ],

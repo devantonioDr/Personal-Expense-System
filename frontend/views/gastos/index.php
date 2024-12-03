@@ -23,6 +23,23 @@ $this->params['breadcrumbs'][] = $this->title;
     'mesActual' => $gastoCalculator->calcularGastoMesActual()
 ]); ?>
 
+<div class="row">
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-green">
+            <div class="inner">
+                <h3>
+                    <?= Yii::$app->formatter->asCurrency($totalIngresoMes ?? 0, 'USD') ?>
+                </h3>
+                <p>Ingreso del Mes Actual</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-money"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <?php echo $this->render('_search', ['model' => $searchModel]); ?>
 
