@@ -10,7 +10,7 @@ $categorias = CategoriasGastos::find()->all();
 ?>
 <?= GridView::widget([
     'id' => 'grid-gastos',
-    
+
     'dataProvider' => $dataProvider,
     // 'filterModel' => $searchModel,
     'layout' => "{items}\n{summary}\n{pager}",
@@ -38,7 +38,12 @@ $categorias = CategoriasGastos::find()->all();
                 ]);
             },
         ],
-        'monto',
+        [
+            'attribute' => 'monto',
+            'value' => function ($model) {
+                return number_format($model->monto, 2);
+            },
+        ],
         'fecha_pago:date',
         'created_at:datetime',
         // 'updated_at',

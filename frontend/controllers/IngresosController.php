@@ -5,6 +5,7 @@ namespace frontend\controllers;
 use Yii;
 use common\models\Ingresos\Ingresos;
 use common\models\Ingresos\IngresosSearch;
+use common\services\IngresoService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -42,23 +43,13 @@ class IngresosController extends Controller
         // Filtrar por el usuario actual y el rango de fechas
         $dataProvider = $searchModel->search(Yii::$app->user->id);
 
-    
-        // Obtener el ingreso total del mes actual
-        $year = Yii::$app->request->get('IngresosSearch')['year'] ?? date('Y');
-        $month = Yii::$app->request->get('IngresosSearch')['month'] ?? date('m');
-
-        // Construct the start and end dates for the selected month
-        $currentMonthStart = "{$year}-{$month}-01";
-        $currentMonthEnd = date("Y-m-t", strtotime($currentMonthStart));
-
-        $totalIngresoMes = Ingresos::find()
-            ->where(['between', 'fecha_pago', $currentMonthStart, $currentMonthEnd])
-            ->sum('monto');
-
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'totalIngresoMes' => $totalIngresoMes,
+            'totalIngresoMes' => IngresoService::getTotalDelMes(
+                Yii::$app->request->get('IngresosSearch')['year'] ?? date('Y'),
+                Yii::$app->request->get('IngresosSearch')['month'] ?? date('m')
+            ),
         ]);
     }
 

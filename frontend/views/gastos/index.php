@@ -19,12 +19,12 @@ $this->params['breadcrumbs'][] = $this->title;
 </style>
 
 <?php echo $this->render('_top_header', [
-    'hoy' => $gastoCalculator->calcularGastoDiaActual(),
-    'mesActual' => $gastoCalculator->calcularGastoMesActual()
+    'hoy' => $gastoTotalHoy,
+    'mesActual' => $gastoTotalMes
 ]); ?>
 
 <div class="row">
-    <div class="col-lg-3 col-xs-6">
+    <div class="col-md-6">
         <div class="small-box bg-green">
             <div class="inner">
                 <h3>
@@ -79,17 +79,19 @@ $(document).on('pjax:end', function() {
     });
 
     // Manejar el cambio de categoría con AJAX
-    $(document).on('change', '.categoria-select', function() {
-        var categoriaId = $(this).val(); // Obtiene el ID de la categoría seleccionada
-        var gastoId = $(this).data('id'); // Obtiene el ID del gasto
+    
+});
+
+$(document).on('change', '.categoria-select', function() {
+        var newCategoryId = $(this).val();
+        var gastoId = $(this).data('id');
 
         $.ajax({
-            url: '/gastos/update-category', // Cambia esto a la URL correcta
+            url: '/gastos/update-category',
             type: 'POST',
-            data: {
-                id: gastoId,
-                categoria_id: categoriaId,
-            },
+            contentType: 'application/json',
+            dataType: 'json',                 
+            data: JSON.stringify({gastoId,newCategoryId}),
             success: function(response) {
                 console.log('Categoría actualizada con éxito:', response);
             },
@@ -97,7 +99,6 @@ $(document).on('pjax:end', function() {
                 alert('Hubo un error al actualizar la categoría.');
             }
         });
-    });
 });
 
 // Inicializa Select2 la primera vez que se carga la página

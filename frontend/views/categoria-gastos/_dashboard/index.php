@@ -18,8 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </style>
 
 <?php echo $this->render('_top_header', [
-    'hoy' => $gastoCalculator->calcularGastoDiaActual(),
-    'mesActual' => $gastoCalculator->calcularGastoMesActual()
+    'mesActual' => $gastoTotalMes
 ]); ?>
 
 <?php echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -29,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <h3 class="panel-title">Gastos Por Categorias</h3>
     </div>
     <div class="panel-body">
-        <?php echo $this->render("_pie_chart", ['data' => $data]); ?>
+        <?php echo $this->render("_bar_chart", ['data' => $data]); ?>
     </div>
     <div class="box-footer  no-padding">
         <?php Pjax::begin(); ?> <!-- Begin Pjax Container -->

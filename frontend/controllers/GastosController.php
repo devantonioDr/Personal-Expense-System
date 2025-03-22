@@ -5,13 +5,14 @@ namespace frontend\controllers;
 use Yii;
 use common\models\Gastos\Gastos;
 use common\models\Gastos\GastosSearch;
-use common\models\Gastos\GastoCalculator;
-use common\models\Ingresos\Ingresos;
-use yii\data\ActiveDataProvider;
+use common\services\GastoService;
+use common\services\IngresoService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\Response;
+use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 
 /**
  * GastosController implements the CRUD actions for Gastos model.
@@ -54,28 +55,18 @@ class GastosController extends Controller
             ]);
         }
 
-        // Calcular el total de gastos
-        $gastoCalculator = new GastoCalculator($dataProvider->query, Yii::$app);
-
-        // Obtener el ingreso total del mes actual
-        $year = Yii::$app->request->get('GastosSearch')['year'] ?? date('Y');
-        $month = Yii::$app->request->get('GastosSearch')['month'] ?? date('m');
-
-        // Construct the start and end dates for the selected month
-        $currentMonthStart = "{$year}-{$month}-01";
-        $currentMonthEnd = date("Y-m-t", strtotime($currentMonthStart));
-
-        $totalIngresoMes = Ingresos::find()
-            ->where(['between', 'fecha_pago', $currentMonthStart, $currentMonthEnd])
-            ->sum('monto');
-
-
-
         return $this->render('index', [
-            'gastoCalculator' => $gastoCalculator,
+            'gastoTotalHoy' => GastoService::getTotalHoy(),
+            'gastoTotalMes' => GastoService::getTotalDelMes(
+                Yii::$app->request->get('GastosSearch')['year'] ?? date('Y'),
+                Yii::$app->request->get('GastosSearch')['month'] ?? date('m')
+            ),
+            'totalIngresoMes' => IngresoService::getTotalDelMes(
+                Yii::$app->request->get('GastosSearch')['year'] ?? date('Y'),
+                Yii::$app->request->get('GastosSearch')['month'] ?? date('m')
+            ),
             'searchModel' => $model,
             'dataProvider' => $dataProvider,
-            'totalIngresoMes' => $totalIngresoMes,
         ]);
     }
 
@@ -146,27 +137,23 @@ class GastosController extends Controller
 
     public function actionUpdateCategory()
     {
-        Yii::$app->response->format = Response::FORMAT_JSON; // Para responder en formato JSON
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
-        if (Yii::$app->request->isAjax) {
-            $id = Yii::$app->request->post('id'); // ID del gasto
-            $categoriaId = Yii::$app->request->post('categoria_id'); // ID de la categoría
+        try {
+            $data = json_decode(Yii::$app->request->getRawBody(), true);
 
-            $gasto = Gastos::findOne($id);
-            if ($gasto !== null) {
-                $gasto->categoria_id = $categoriaId; // Actualiza la categoría
-
-                if ($gasto->save()) {
-                    return ['success' => true, 'message' => 'Categoría actualizada correctamente.'];
-                } else {
-                    return ['success' => false, 'message' => 'Error al actualizar la categoría.'];
-                }
-            } else {
-                return ['success' => false, 'message' => 'Gasto no encontrado.'];
+            if (!isset($data['gastoId'], $data['newCategoryId'])) {
+                throw new BadRequestHttpException('Parámetros incompletos.');
             }
-        }
 
-        throw new NotFoundHttpException('La solicitud no es válida.');
+            return GastoService::updateCategory($data['gastoId'], $data['newCategoryId']);
+        } catch (HttpException $e) {
+            Yii::$app->response->statusCode = $e->statusCode;
+            return ['success' => false, 'message' => $e->getMessage()];
+        } catch (\Exception $e) {
+            Yii::$app->response->statusCode = 500;
+            return ['success' => false, 'message' => 'Error interno del servidor.'];
+        }
     }
 
     /**

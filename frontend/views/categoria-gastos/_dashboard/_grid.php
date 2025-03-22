@@ -16,7 +16,15 @@ use yii\grid\GridView;
 
         'nombre',
         'descripcion',
-        'total_gastos',
+        [
+            'attribute' => 'total_gastos',
+            'value' => function ($model) {
+                return number_format($model->total_gastos); // Mostrar el conteo de los gastos
+            },
+            'headerOptions' => ['style' => 'text-align: center;'], // Opcional: centrar el encabezado
+            'contentOptions' => ['style' => 'text-align: center;'], // Opcional: centrar el contenido
+            'enableSorting' => true, // Habilitar el ordenamiento para esta columna
+        ],
 
     ],
 ]); ?>

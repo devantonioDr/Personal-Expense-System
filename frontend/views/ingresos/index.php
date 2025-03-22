@@ -13,7 +13,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="row">
     <!-- Info Box for Ingreso Mensual -->
-    <div class="col-lg-3 col-xs-6">
+    <div class="col-md-6">
         <div class="small-box bg-green">
             <div class="inner">
                 <h3>
@@ -49,7 +49,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 ['class' => 'yii\grid\SerialColumn'],
 
                 'descripcion',
-                'monto',
+                [
+                    'attribute' => 'monto',
+                    'value' => function ($model) {
+                        return number_format($model->monto, 2);
+                    },
+                ],
                 'fecha_pago',
                 // 'created_at',
                 // 'updated_at',

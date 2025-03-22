@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'label' => 'Total Gastos',
                     'attribute'=>'gastos_count',
                     'value' => function ($model) {
-                        return $model->gastos_count; // Mostrar el conteo de los gastos
+                        return number_format($model->gastos_count) ; // Mostrar el conteo de los gastos
                     },
                     'headerOptions' => ['style' => 'text-align: center;'], // Opcional: centrar el encabezado
                     'contentOptions' => ['style' => 'text-align: center;'], // Opcional: centrar el contenido

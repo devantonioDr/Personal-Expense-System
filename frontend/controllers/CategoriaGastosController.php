@@ -6,12 +6,10 @@ use Yii;
 use common\models\Gastos\CategoriasGastos;
 use common\models\Gastos\CategoriasGastosDashboardSearch;
 use common\models\Gastos\CategoriasGastosSearch;
-use common\models\Gastos\GastoCalculator;
-use common\models\Gastos\GastosSearch;
+use common\services\GastoService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use yii\helpers\VarDumper;
 
 /**
  * CategoriaGastosController implements the CRUD actions for CategoriasGastos model.
@@ -138,7 +136,10 @@ class CategoriaGastosController extends Controller
 
         return $this->render('_dashboard/index', [
             'data' => $data,
-            'gastoCalculator' => new GastoCalculator($dataProvider->query, Yii::$app),
+            'gastoTotalMes' => GastoService::getTotalDelMes(
+                Yii::$app->request->get('CategoriasGastosDashboardSearch')['year'] ?? date('Y'),
+                Yii::$app->request->get('CategoriasGastosDashboardSearch')['month'] ?? date('m')
+            ),
             'searchModel' => $model,
             'dataProvider' => $dataProvider,
         ]);
