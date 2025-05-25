@@ -3,8 +3,11 @@
 namespace common\services;
 
 use common\models\Gastos\Gastos;
+use common\models\Gastos\CategoriasGastos;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
+use yii\db\Expression;
+use yii\helpers\VarDumper;
 
 
 class GastoService
@@ -56,4 +59,37 @@ class GastoService
         // Optionally log the error or inspect $gasto->getErrors()
         throw new ServerErrorHttpException('Error al actualizar la categoría.');
     }
+
+    // obtenerGastosAgrupadosPorCategoriaYMes
+     public function getGastosGroupedByCategoriesAndMonths($userId, $year)
+     {
+        $result = Gastos::find()
+            ->select([
+                'categoria_id',
+                "MONTH(fecha_pago) AS mes",
+                new Expression("SUM(monto) AS total")
+            ])
+            ->andWhere(['YEAR(fecha_pago)' => $year])
+            ->groupBy(['categoria_id', new Expression("MONTH(fecha_pago)")])
+            ->asArray()
+            ->all();
+
+        // Obtener nombres de categorías
+        $categorias = CategoriasGastos::find()
+            ->select(['nombre'])
+            ->indexBy('id')
+            ->column();
+
+        // VarDumper::dump($categorias, 10, true);
+
+        // Formato: [categoria][mes] => total
+        $datos = [];
+        foreach ($result as $row) {
+            $catNombre = $categorias[$row['categoria_id']] ?? 'No categorizados';
+            $datos[$catNombre][(int)$row['mes']] = (float)$row['total'];
+        }
+    
+        return $datos;
+    }
+
 }

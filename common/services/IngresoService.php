@@ -3,6 +3,8 @@
 namespace common\services;
 
 use common\models\Ingresos\Ingresos;
+use yii\db\Expression;
+use yii\helpers\VarDumper;
 
 class IngresoService
 {
@@ -19,4 +21,29 @@ class IngresoService
             ->where(['between', 'fecha_pago', $startDate, $endDate])
             ->sum('monto');
     }
+
+    // obtenerIngresosMensuales
+    public function getMonthlyIncome($userId, $year)
+    {
+        $result = Ingresos::find()
+        ->select([
+            new Expression("MONTH(fecha_pago) AS mes"),
+            new Expression("SUM(monto) AS total")
+        ])
+        ->andWhere(['YEAR(fecha_pago)' => $year])
+        ->groupBy([new Expression("MONTH(fecha_pago)")])
+        ->asArray()
+        ->all();
+
+        
+
+        // Aseguramos que todos los meses estén presentes
+        $ingresosMensuales = array_fill(1, 12, 0);
+        foreach ($result as $row) {
+            $mes = (int)$row['mes'];
+            $ingresosMensuales[$mes] = (float)$row['total'];
+        }
+
+    return $ingresosMensuales;
+}
 }
