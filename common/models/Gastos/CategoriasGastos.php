@@ -29,8 +29,8 @@ class CategoriasGastos extends ActiveRecord
     public function rules()
     {
         return [
-            [['nombre', 'created_at', 'updated_at'], 'required'],
-            [['created_at', 'updated_at', 'gastos_count'], 'integer'],
+            [['nombre','color_etiqueta'], 'required'],
+            [['gastos_count'], 'integer'],
             [['nombre'], 'string', 'max' => 100],
             [['descripcion'], 'string', 'max' => 255],
         ];
@@ -43,6 +43,7 @@ class CategoriasGastos extends ActiveRecord
             'id' => 'ID',
             'nombre' => 'Nombre',
             'descripcion' => 'Descripcion',
+            'color_etiqueta' => 'Color Etiqueta',	
             'created_at' => 'Fecha de creación',
             'updated_at' => 'Updated At',
         ];

@@ -16,6 +16,9 @@ use yii\widgets\ActiveForm;
 
         <?= $form->field($model, 'descripcion')->textInput(['maxlength' => true]) ?>
 
+        <?= $form->field($model, 'color_etiqueta')->input('color') ?>
+
+
     </div>
     <div class="box-footer">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success btn-flat']) ?>
