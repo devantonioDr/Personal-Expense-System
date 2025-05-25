@@ -74,22 +74,27 @@ class GastoService
             ->asArray()
             ->all();
 
-        // Obtener nombres de categorías
-        $categorias = CategoriasGastos::find()
-            ->select(['nombre'])
-            ->indexBy('id')
-            ->column();
 
-        // VarDumper::dump($categorias, 10, true);
-
-        // Formato: [categoria][mes] => total
+        // Formato: [categoria_id][mes] => total
         $datos = [];
         foreach ($result as $row) {
-            $catNombre = $categorias[$row['categoria_id']] ?? 'No categorizados';
-            $datos[$catNombre][(int)$row['mes']] = (float)$row['total'];
+            $datos[$row['categoria_id']][(int)$row['mes']] = (float)$row['total'];
         }
-    
         return $datos;
     }
+
+    // Propiedad estática para almacenar las categorías en caché
+    private static $categoriasCache = null;
+    public static function obtenerCategorias()
+    {
+        if (self::$categoriasCache) {
+            return self::$categoriasCache;
+        }
+        // Formato: ['id' => 'nombre']
+        self::$categoriasCache = CategoriasGastos::find()->select(['nombre'])->indexBy('id')->column();
+        return self::$categoriasCache;
+    }
+
+
 
 }

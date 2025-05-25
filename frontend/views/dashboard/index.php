@@ -4,6 +4,8 @@ use yii\helpers\Html;
 $this->title = 'Dashboard de Gastos e Ingresos';
 $this->params['breadcrumbs'][] = $this->title;
 
+$year = date('Y'); // Año para el resumen
+
 // Nombres de los meses
 $meses = [
     1 => 'Ene', 2 => 'Feb', 3 => 'Mar', 4 => 'Abr', 5 => 'May', 6 => 'Jun',
@@ -14,11 +16,13 @@ $meses = [
 $totalesMensuales = array_fill(1, 12, 0);
 $granTotalGasto = 0;
 $granTotalIngreso = 0;
+
+
 ?>
 
 <div class="box box-primary">
     <div class="box-header with-border">
-        <h3 class="box-title">Resumen Financiero por Categoría - Año <?= date('Y') ?></h3>
+        <h3 class="box-title">Resumen Financiero por Categoría - Año <?= $year ?></h3>
     </div>
     <div class="box-body table-responsive no-padding">
         <table class="table table-bordered table-hover">
@@ -33,16 +37,33 @@ $granTotalIngreso = 0;
             </thead>
             <tbody>
                 <!-- GASTOS POR CATEGORÍA -->
-                <?php foreach ($datos as $categoria => $gastos): ?>
+                <?php foreach ($gastoPorCategoria as $categoriaId => $gastosPorMes): ?>
                     <tr>
-                        <td><?= Html::encode($categoria) ?></td>
+                        <td>
+                            <?php 
+                                $catDesc = $catDescs[$categoriaId] ?? 'No categorizados';
+                                echo Html::encode($catDesc)
+                            ?>
+                        </td>
                         <?php
                         $totalCategoria = 0;
                         foreach (range(1, 12) as $mes) {
-                            $monto = $gastos[$mes] ?? 0;
+                            
+                            $monto = $gastosPorMes[$mes] ?? 0;
                             $totalCategoria += $monto;
                             $totalesMensuales[$mes] += $monto;
-                            echo '<td>$ ' . number_format($monto, 2) . '</td>';
+
+                            $link = Html::a(
+                                '$' . number_format($monto, 2),
+                                ['gastos/index',
+                                'GastosSearch'=>[
+                                    'categoria_id' => $categoriaId, 
+                                    'year' => $year, 
+                                    'month' => $mes
+                                ] ],
+                                ['class' => 'btn btn-xs btn-default']
+                            );
+                            echo '<td>' . $link . '</td>';
                         }
                         $granTotalGasto += $totalCategoria;
                         ?>

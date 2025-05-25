@@ -14,15 +14,18 @@ class DashboardController extends Controller
         $userId = Yii::$app->user->id;
         $year = 2025;
 
-        $service = new GastoService();
-        $datos = $service->getGastosGroupedByCategoriesAndMonths($userId, $year);
+        $gastoService = new GastoService();
+        $gastoPorCategoria = $gastoService->getGastosGroupedByCategoriesAndMonths($userId, $year);
 
         $ingresoService = new IngresoService();
         $monthlyIncome = $ingresoService->getMonthlyIncome($userId, $year);
 
+        $catDescs = GastoService::obtenerCategorias();
+
         return $this->render('index', [
-            'datos' => $datos,
-            'ingresosMensuales' => $monthlyIncome,	
+            'gastoPorCategoria' => $gastoPorCategoria,
+            'ingresosMensuales' => $monthlyIncome,
+            'catDescs' => $catDescs,	
         ]);
     }
 }
