@@ -1,0 +1,193 @@
+/* Zona de adjunto de foto para gastos e ingresos */
+.adjunto-foto-wrap {
+  position: relative;
+  margin-bottom: 0;
+}
+
+.adjunto-foto-wrap .form-group {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: 0;
+}
+
+.adjunto-foto-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  padding: 1.25rem;
+  border: 2px dashed #d2d6de;
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.adjunto-foto-zone:hover,
+.adjunto-foto-zone:focus {
+  border-color: #3c8dbc;
+  background: #f0f7fc;
+  outline: none;
+}
+
+.adjunto-foto-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.adjunto-foto-text {
+  font-size: 0.95rem;
+  color: #333;
+  text-align: center;
+}
+
+.adjunto-foto-hint {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 0.25rem;
+}
+
+.adjunto-foto-mobile-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .adjunto-foto-mobile-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #3c8dbc;
+  }
+}
+
+.adjunto-foto-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.adjunto-foto-preview .adjunto-thumb {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  display: block;
+  margin: 0 auto 0.5rem;
+}
+
+.adjunto-foto-current {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Vista detalle: bloque de comprobante */
+.adjunto-comprobante {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.adjunto-comprobante img {
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: 6px;
+  display: block;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.adjunto-comprobante img:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.adjunto-comprobante a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #3c8dbc;
+}
+
+.adjunto-comprobante a:hover {
+  text-decoration: underline;
+}
+
+/* Lightbox para comprobantes en listas */
+.adjunto-lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.85);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.adjunto-lightbox.is-open {
+  display: flex;
+}
+
+.adjunto-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.adjunto-lightbox-content {
+  position: relative;
+  max-width: 95vw;
+  max-height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.adjunto-lightbox-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.adjunto-lightbox-close {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #333;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.adjunto-lightbox-close:hover {
+  background: #fff;
+}
+
+.adjunto-lightbox-trigger {
+  cursor: pointer;
+  text-decoration: none;
+}

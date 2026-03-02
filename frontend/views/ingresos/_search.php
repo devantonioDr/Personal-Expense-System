@@ -8,6 +8,9 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model common\models\IngresosSearch */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $proyecto_id int|null */
+
+$proyecto_id = $proyecto_id ?? null;
 ?>
 
 <div class="row">
@@ -17,9 +20,12 @@ use yii\widgets\ActiveForm;
                 <div class="gastos-search">
 
                     <?php $form = ActiveForm::begin([
-                        'action' => ['index'],
+                        'action' => array_merge(['index'], $proyecto_id ? ['proyecto_id' => $proyecto_id] : []),
                         'method' => 'get',
                     ]); ?>
+                    <?php if ($proyecto_id): ?>
+                        <?= Html::hiddenInput('proyecto_id', $proyecto_id) ?>
+                    <?php endif; ?>
 
 
                     <div class="row">
@@ -60,7 +66,7 @@ use yii\widgets\ActiveForm;
 
                     <div class="form-group">
                         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-                        <?= Html::a('Reset', Url::to([""]), ['class' => 'btn btn-default']) ?>
+                        <?= Html::a('Reset', Url::to(array_merge(['ingresos/index'], $proyecto_id ? ['proyecto_id' => $proyecto_id] : [])), ['class' => 'btn btn-default']) ?>
                     </div>
 
                     <?php ActiveForm::end(); ?>

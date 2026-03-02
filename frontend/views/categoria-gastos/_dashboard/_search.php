@@ -1,15 +1,17 @@
 <?php
 
 use common\components\MyHelpers;
-use common\models\Gastos\CategoriasGastos;
 use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
-/* @var $this yii\web\View */
-/* @var $model common\models\Gastos\GastosSearch */
-/* @var $form yii\widgets\ActiveForm */
 
+/* @var $this yii\web\View */
+/* @var $model common\models\Gastos\GastosCategoriaDashboardSearch */
+/* @var $form yii\widgets\ActiveForm */
+/* @var $categorias array id => nombre */
+
+$categorias = $categorias ?? [];
 ?>
 
 <div class="row">
@@ -51,12 +53,8 @@ use yii\widgets\ActiveForm;
                     <!-- Filtro de Categoría -->
                     <div class="form-group">
                         <?php
-                        // Obtener todas las categorías para el select
-                        $categorias = CategoriasGastos::find()->all();
-
-                        // Utilizar Select2 para el filtro de categoría
                         echo $form->field($model, 'id')->widget(Select2::classname(), [
-                            'data' => \yii\helpers\ArrayHelper::map($categorias, 'id', 'nombre'),
+                            'data' => $categorias,
                             'options' => ['placeholder' => 'Seleccionar categoría...'],
                             'pluginOptions' => [
                                 'allowClear' => true

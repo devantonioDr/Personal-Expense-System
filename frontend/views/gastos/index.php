@@ -6,9 +6,13 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\Gastos\GastosSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-/* @var $gastoCalculator common\models\Gasto\GastoCalculatorGastoCalculator */
+/* @var $categorias array id => nombre */
+/* @var $proyecto common\models\Proyecto\Proyecto|null */
 
 $this->title = 'Gastos';
+if (isset($proyecto) && $proyecto) {
+    $this->params['breadcrumbs'][] = ['label' => $proyecto->nombre, 'url' => ['/dashboard/index', 'proyecto_id' => $proyecto->id]];
+}
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -41,11 +45,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 
-<?php echo $this->render('_search', ['model' => $searchModel]); ?>
+<?php echo $this->render('_search', [
+    'model' => $searchModel,
+    'categorias' => $categorias ?? [],
+    'proyecto_id' => $proyecto->id ?? $searchModel->proyecto_id ?? null,
+]); ?>
 
 <div class="gastos-index box box-primary">
     <div class="box-header with-border">
-        <?= Html::a('Registrar Gasto', ['create'], ['class' => 'btn btn-success btn-flat']) ?>
+        <?= Html::a('Registrar Gasto', array_merge(['create'], $searchModel->proyecto_id ? ['proyecto_id' => $searchModel->proyecto_id] : []), ['class' => 'btn btn-success btn-flat']) ?>
     </div>
     <div class="box-body table-responsive no-padding">
         <?php Pjax::begin(); ?> <!-- Begin Pjax Container -->
@@ -53,7 +61,8 @@ $this->params['breadcrumbs'][] = $this->title;
             "_grid",
             [
                 'dataProvider' => $dataProvider,
-                'filterModel' => $searchModel
+                'searchModel' => $searchModel,
+                'categorias' => $categorias ?? [],
             ]
         ) ?>
         <?php Pjax::end(); ?> <!-- End Pjax Container -->

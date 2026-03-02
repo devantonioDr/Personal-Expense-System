@@ -1,15 +1,19 @@
 <?php
 
 use common\components\MyHelpers;
-use common\models\Gastos\CategoriasGastos;
 use kartik\select2\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+
 /* @var $this yii\web\View */
 /* @var $model common\models\Gastos\GastosSearch */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $categorias array id => nombre */
+/* @var $proyecto_id int|null */
 
+$categorias = $categorias ?? [];
+$proyecto_id = $proyecto_id ?? null;
 ?>
 
 <div class="row">
@@ -19,9 +23,12 @@ use yii\widgets\ActiveForm;
                 <div class="gastos-search">
 
                     <?php $form = ActiveForm::begin([
-                        'action' => ['index'],
+                        'action' => array_merge(['index'], $proyecto_id ? ['proyecto_id' => $proyecto_id] : []),
                         'method' => 'get',
                     ]); ?>
+                    <?php if ($proyecto_id): ?>
+                        <?= Html::hiddenInput('proyecto_id', $proyecto_id) ?>
+                    <?php endif; ?>
 
 
                     <div class="row">
@@ -60,12 +67,8 @@ use yii\widgets\ActiveForm;
                     <!-- Filtro de Categoría -->
                     <div class="form-group">
                         <?php
-                        // Obtener todas las categorías para el select
-                        $categorias = CategoriasGastos::find()->all();
-
-                        // Utilizar Select2 para el filtro de categoría
                         echo $form->field($model, 'categoria_id')->widget(Select2::classname(), [
-                            'data' => \yii\helpers\ArrayHelper::map($categorias, 'id', 'nombre'),
+                            'data' => $categorias,
                             'options' => ['placeholder' => 'Seleccionar categoría...'],
                             'pluginOptions' => [
                                 'allowClear' => true
@@ -77,7 +80,7 @@ use yii\widgets\ActiveForm;
 
                     <div class="form-group">
                         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-                        <?= Html::a('Reset', Url::to([""]), ['class' => 'btn btn-default']) ?>
+                        <?= Html::a('Reset', Url::to(array_merge(['gastos/index'], $proyecto_id ? ['proyecto_id' => $proyecto_id] : [])), ['class' => 'btn btn-default']) ?>
                     </div>
 
                     <?php ActiveForm::end(); ?>

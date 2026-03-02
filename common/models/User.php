@@ -29,12 +29,19 @@ use yii\helpers\ArrayHelper;
  * @property integer $updated_at
  * @property string $guid
  * @property string $password write-only password
+ * @property string $user_rol
  */
 class User extends ActiveRecord implements IdentityInterface
 {
   const STATUS_DELETED = 0;
   const STATUS_INACTIVE = 10; // quiero que llegue activo  si no es activo es 9
   const STATUS_ACTIVE = 10;
+
+  const ROLE_OPERADOR = 'operador';
+  const ROLE_ADMINISTRADOR = 'administrador';
+
+  /** @var string Contraseña en claro (solo para formulario, no se persiste) */
+  public $password;
 
   /**
    * {@inheritdoc}
@@ -60,9 +67,70 @@ class User extends ActiveRecord implements IdentityInterface
   public function rules()
   {
     return [
+      [['username', 'email'], 'required'],
+      [['username', 'email'], 'string', 'max' => 255],
+      [['username', 'email'], 'trim'],
+      ['email', 'email'],
+      ['username', 'unique', 'targetClass' => self::class, 'message' => 'Este nombre de usuario ya está en uso.', 'filter' => function ($query) {
+        if (!$this->isNewRecord) {
+          $query->andWhere(['!=', 'id', $this->id]);
+        }
+      }],
+      ['email', 'unique', 'targetClass' => self::class, 'message' => 'Este correo ya está registrado.', 'filter' => function ($query) {
+        if (!$this->isNewRecord) {
+          $query->andWhere(['!=', 'id', $this->id]);
+        }
+      }],
+      ['password', 'string', 'min' => 6],
+      ['password', 'required', 'on' => 'create'],
+      ['user_rol', 'string', 'max' => 50],
+      ['user_rol', 'default', 'value' => self::ROLE_OPERADOR],
+      ['user_rol', 'in', 'range' => [self::ROLE_OPERADOR, self::ROLE_ADMINISTRADOR]],
       ['status', 'default', 'value' => self::STATUS_INACTIVE],
       ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
     ];
+  }
+
+  /** @inheritdoc */
+  public function scenarios()
+  {
+    $s = parent::scenarios();
+    $s['create'] = ['username', 'email', 'password', 'status', 'user_rol'];
+    $s['update'] = ['username', 'email', 'password', 'status', 'user_rol'];
+    return $s;
+  }
+
+  /** @inheritdoc */
+  public function attributeLabels()
+  {
+    return [
+      'id' => 'ID',
+      'username' => 'Usuario',
+      'email' => 'Correo',
+      'password' => 'Contraseña',
+      'user_rol' => 'Rol',
+      'status' => 'Estado',
+      'created_at' => 'Creado',
+      'updated_at' => 'Actualizado',
+    ];
+  }
+
+  /** @inheritdoc */
+  public function beforeSave($insert)
+  {
+    if (!parent::beforeSave($insert)) {
+      return false;
+    }
+    if ($insert) {
+      $this->generateAuthKey();
+      if (empty($this->user_rol)) {
+        $this->user_rol = self::ROLE_OPERADOR;
+      }
+    }
+    if (!empty($this->password)) {
+      $this->setPassword($this->password);
+    }
+    return true;
   }
 
  

@@ -19,9 +19,9 @@ class IngresosSearch extends Ingresos
     public function rules()
     {
         return [
-            [['id', 'user_id', 'created_at', 'updated_at', 'categoria_id'], 'integer'],
+            [['id', 'user_id', 'created_at', 'updated_at', 'categoria_id', 'proyecto_id'], 'integer'],
             [['descripcion', 'fecha_pago'], 'safe'],
-            [['year', 'month'], 'integer'], // Añade reglas para año y mes
+            [['year', 'month'], 'integer'],
             [['monto'], 'number'],
         ];
     }
@@ -54,9 +54,11 @@ class IngresosSearch extends Ingresos
      */
     public function search($params, $user_id = null)
     {
-        $query = Ingresos::find();
+        $user_id = $user_id ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
 
-        if ($user_id) {
+        $query = Ingresos::find()->with(['createdByUser']);
+
+        if ($user_id !== null) {
             $query->where(['user_id' => $user_id]);
         }
 
@@ -88,6 +90,7 @@ class IngresosSearch extends Ingresos
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'categoria_id' => $this->categoria_id,
+            'proyecto_id' => $this->proyecto_id,
         ]);
 
         $query->andFilterWhere(['like', 'descripcion', $this->descripcion]);

@@ -6,6 +6,7 @@ use Yii;
 use common\models\Ingresos\Ingresos;
 use common\models\Ingresos\IngresosSearch;
 use common\services\IngresoService;
+use common\services\ProyectoService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -31,25 +32,35 @@ class IngresosController extends Controller
     }
 
     /**
-     * Lists all Ingresos models.
+     * Lists all Ingresos models. Requiere proyecto_id en la URL.
+     * @param int $proyecto_id
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($proyecto_id)
     {
+        $proyecto = ProyectoService::ensureUserCanAccessProyecto((int) $proyecto_id);
+
         $searchModel = new IngresosSearch();
-        $searchModel->load(Yii::$app->request->queryParams);
+        $params = Yii::$app->request->queryParams;
+        if (!isset($params['IngresosSearch'])) {
+            $params['IngresosSearch'] = [];
+        }
+        $params['IngresosSearch']['proyecto_id'] = $proyecto_id;
+        $params['proyecto_id'] = $proyecto_id;
+        $searchModel->load($params);
         $searchModel->setDefaultValues();
 
-        // Filtrar por el usuario actual y el rango de fechas
-        $dataProvider = $searchModel->search(Yii::$app->user->id);
-
+        $dataProvider = $searchModel->search($params);
+        $getSearch = Yii::$app->request->get('IngresosSearch', []);
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'totalIngresoMes' => IngresoService::getTotalDelMes(
-                Yii::$app->request->get('IngresosSearch')['year'] ?? date('Y'),
-                Yii::$app->request->get('IngresosSearch')['month'] ?? date('m')
+                $getSearch['year'] ?? date('Y'),
+                $getSearch['month'] ?? date('m'),
+                (int) $proyecto_id
             ),
+            'proyecto' => $proyecto,
         ]);
     }
 
@@ -60,29 +71,42 @@ class IngresosController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+        $proyecto = null;
+        if ($model->proyecto_id) {
+            $proyecto = ProyectoService::ensureUserCanAccessProyecto((int) $model->proyecto_id);
+        }
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'proyecto' => $proyecto,
         ]);
     }
 
     /**
-     * Creates a new Ingresos model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * Creates a new Ingresos model. Requiere proyecto_id en la URL.
+     * @param int $proyecto_id
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($proyecto_id)
     {
+        $proyecto = ProyectoService::ensureUserCanAccessProyecto((int) $proyecto_id);
+
         $model = new Ingresos();
-
         $model->user_id = Yii::$app->user->id;
+        $model->proyecto_id = $proyecto_id;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        if ($model->load(Yii::$app->request->post())) {
+            $model->adjuntoFile = \yii\web\UploadedFile::getInstance($model, 'adjuntoFile');
+            if ($model->save()) {
+                $model->saveAdjuntoFile();
+                return $this->redirect(['view', 'id' => $model->id, 'proyecto_id' => $proyecto_id]);
+            }
         }
+
+        return $this->render('create', [
+            'model' => $model,
+            'proyecto' => $proyecto,
+        ]);
     }
 
     /**
@@ -94,14 +118,27 @@ class IngresosController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+        $proyecto = null;
+        if ($model->proyecto_id) {
+            $proyecto = ProyectoService::ensureUserCanAccessProyecto((int) $model->proyecto_id);
         }
+
+        if ($model->load(Yii::$app->request->post())) {
+            $model->adjuntoFile = \yii\web\UploadedFile::getInstance($model, 'adjuntoFile');
+            if ($model->save()) {
+                $model->saveAdjuntoFile();
+                $redirect = ['view', 'id' => $model->id];
+                if ($model->proyecto_id) {
+                    $redirect['proyecto_id'] = $model->proyecto_id;
+                }
+                return $this->redirect($redirect);
+            }
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+            'proyecto' => $proyecto,
+        ]);
     }
 
     /**
@@ -112,9 +149,18 @@ class IngresosController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        if ($model->proyecto_id) {
+            ProyectoService::ensureUserCanAccessProyecto((int) $model->proyecto_id);
+        }
+        $proyectoId = $model->proyecto_id;
+        $model->delete();
 
-        return $this->redirect(['index']);
+        $redirect = ['index'];
+        if ($proyectoId) {
+            $redirect['proyecto_id'] = $proyectoId;
+        }
+        return $this->redirect($redirect);
     }
 
     /**

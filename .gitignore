@@ -44,3 +44,6 @@ phpunit.phar
 
 mysql-data
 .qodo
+
+# uploaded attachments (gastos/ingresos photos)
+/frontend/web/uploads/

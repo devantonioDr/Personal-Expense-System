@@ -2,6 +2,7 @@
 
 namespace common\models\Ingresos;
 
+use common\models\Proyecto\Proyecto;
 use Yii;
 
 /**
@@ -12,8 +13,10 @@ use Yii;
  * @property string|null $descripcion
  * @property int $created_at
  * @property int $updated_at
+ * @property int|null $proyecto_id
  *
  * @property Ingresos[] $ingresos
+ * @property Proyecto $proyecto
  */
 class IngresosCategoria extends \yii\db\ActiveRecord
 {
@@ -33,8 +36,9 @@ class IngresosCategoria extends \yii\db\ActiveRecord
         return [
             [['nombre', 'created_at', 'updated_at'], 'required'],
             [['descripcion'], 'string'],
-            [['created_at', 'updated_at'], 'integer'],
+            [['created_at', 'updated_at', 'proyecto_id'], 'integer'],
             [['nombre'], 'string', 'max' => 255],
+            [['proyecto_id'], 'exist', 'skipOnError' => true, 'targetClass' => Proyecto::class, 'targetAttribute' => ['proyecto_id' => 'id']],
         ];
     }
 
@@ -49,6 +53,7 @@ class IngresosCategoria extends \yii\db\ActiveRecord
             'descripcion' => 'Descripcion',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'proyecto_id' => 'Proyecto',
         ];
     }
 
@@ -60,5 +65,13 @@ class IngresosCategoria extends \yii\db\ActiveRecord
     public function getIngresos()
     {
         return $this->hasMany(Ingresos::class, ['categoria_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProyecto()
+    {
+        return $this->hasOne(Proyecto::class, ['id' => 'proyecto_id']);
     }
 }

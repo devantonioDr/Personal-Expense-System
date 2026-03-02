@@ -6,26 +6,37 @@ use Yii;
 use yii\web\Controller;
 use common\services\GastoService;
 use common\services\IngresoService;
+use common\services\ProyectoService;
 
 class DashboardController extends Controller
 {
     public function actionIndex()
     {
-        $userId = Yii::$app->user->id;
-        $year = 2025;
+        $year = (int) (Yii::$app->request->get('year') ?? date('Y'));
+        $proyectoId = Yii::$app->request->get('proyecto_id');
+        $proyecto = null;
+        if ($proyectoId !== null && $proyectoId !== '') {
+            $proyectoId = (int) $proyectoId;
+            $proyecto = ProyectoService::getProyectoParaUsuario($proyectoId);
+            if (!$proyecto) {
+                $proyectoId = null;
+            }
+        }
 
         $gastoService = new GastoService();
-        $gastoPorCategoria = $gastoService->getGastosGroupedByCategoriesAndMonths($userId, $year);
+        $gastoPorCategoria = $gastoService->getGastosGroupedByCategoriesAndMonths($year, $proyectoId);
 
-        $ingresoService = new IngresoService();
-        $monthlyIncome = $ingresoService->getMonthlyIncome($userId, $year);
+        $monthlyIncome = IngresoService::getMonthlyIncome($year, $proyectoId);
 
         $catDescs = GastoService::obtenerCategorias();
 
         return $this->render('index', [
             'gastoPorCategoria' => $gastoPorCategoria,
             'ingresosMensuales' => $monthlyIncome,
-            'catDescs' => $catDescs,	
+            'catDescs' => $catDescs,
+            'proyectoId' => $proyectoId,
+            'proyecto' => $proyecto,
+            'year' => $year,
         ]);
     }
 }

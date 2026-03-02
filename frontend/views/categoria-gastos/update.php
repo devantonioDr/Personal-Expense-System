@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\Gastos\CategoriasGastos */
+/* @var $model common\models\Gastos\GastosCategoria */
 
 $this->title = 'Update Categoria: ' . $model->nombre;
 $this->params['breadcrumbs'][] = ['label' => 'Categorias Gastos', 'url' => ['index']];

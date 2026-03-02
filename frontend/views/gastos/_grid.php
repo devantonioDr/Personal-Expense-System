@@ -1,12 +1,14 @@
 <?php
 
-use common\models\Gastos\CategoriasGastos;
 use yii\grid\GridView;
 use yii\helpers\Html;
 use kartik\select2\Select2;
-use yii\helpers\ArrayHelper;
 
-$categorias = CategoriasGastos::find()->all();
+/* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $searchModel common\models\Gastos\GastosSearch */
+/* @var $categorias array id => nombre */
+
+$categorias = $categorias ?? [];
 ?>
 <?= GridView::widget([
     'id' => 'grid-gastos',
@@ -19,14 +21,24 @@ $categorias = CategoriasGastos::find()->all();
 
         'descripcion',
         [
+            'label' => '',
+            'format' => 'raw',
+            'value' => function ($model) {
+                if ($model->adjunto && $model->getAdjuntoUrl()) {
+                    return Html::a('📷', $model->getAdjuntoUrl(), ['class' => 'adjunto-lightbox-trigger', 'title' => 'Ver comprobante', 'data-pjax' => '0']);
+                }
+                return '';
+            },
+        ],
+        [
             'label' => "Categoria",
             'attribute' => 'categoria_nombre',
             'format' => 'raw', // Permite HTML en la celda
             'value' => function ($model) use ($categorias) {
                 return Select2::widget([
-                    'name' => 'categoria_id', // Nombre del campo
-                    'value' => $model->categoria_id, // Valor actual (el id de la categoría seleccionada)
-                    'data' => ArrayHelper::map($categorias, 'id', 'nombre'), // Las opciones del select
+                    'name' => 'categoria_id',
+                    'value' => $model->categoria_id,
+                    'data' => $categorias,
                     'options' => [
                         'class' => 'form-control categoria-select',
                         'data-id' => $model->id, // ID del gasto
@@ -45,6 +57,13 @@ $categorias = CategoriasGastos::find()->all();
             },
         ],
         'fecha_pago:date',
+        [
+            'attribute' => 'created_by',
+            'label' => 'Creado por',
+            'value' => function ($model) {
+                return $model->createdByUser ? $model->createdByUser->username : '';
+            },
+        ],
         'created_at:datetime',
         // 'updated_at',
 

@@ -1,21 +1,14 @@
 <aside class="main-sidebar">
   <section class="sidebar">
+    <?php
+    use common\services\MenuService;
+
+    $menuItems = MenuService::getMenuItems();
+    ?>
     <?= dmstr\widgets\Menu::widget(
       [
         'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
-        'items' => [
-          [
-            'label' => 'Finanzas Personales',
-            'icon' => 'align-justify',
-            'url' => '#',
-            'items' => [
-              ['label' => 'Categorias', 'icon' => 'circle', 'url' => ['/categoria-gastos/index'],],
-              ['label' => 'Dashboard', 'icon' => 'circle', 'url' => ['/dashboard']],
-              ['label' => 'Gastos', 'icon' => 'circle', 'url' => ['/gastos/index'],],
-              ['label' => 'Ingresos', 'icon' => 'circle', 'url' => ['/ingresos/index'],],
-            ]
-          ]
-        ],
+        'items' => $menuItems,
       ]
     ) ?>
   </section>

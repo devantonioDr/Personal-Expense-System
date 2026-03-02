@@ -21,11 +21,11 @@ class GastosSearch extends Gastos
     public function rules()
     {
         return [
-            [['id', 'user_id', 'created_at', 'updated_at'], 'integer'],
+            [['id', 'user_id', 'created_at', 'updated_at', 'proyecto_id'], 'integer'],
             [['descripcion'], 'safe'],
             [['monto'], 'number'],
-            [['year', 'month'], 'integer'], // Añade reglas para año y mes
-            [['categoria_nombre','categoria_id'], 'safe'], // Añadir regla para categoria_nombre
+            [['year', 'month'], 'integer'],
+            [['categoria_nombre', 'categoria_id'], 'safe'],
         ];
     }
 
@@ -40,9 +40,9 @@ class GastosSearch extends Gastos
     public function baseQuery()
     {
         return Gastos::find()->leftJoin(
-            'categorias_gastos',
-            'categorias_gastos.id = gastos.categoria_id'
-        )->select(['gastos.*', 'categorias_gastos.nombre as categoria_nombre']);
+            'gastos_categoria',
+            'gastos_categoria.id = gastos.categoria_id'
+        )->select(['gastos.*', 'gastos_categoria.nombre as categoria_nombre']);
     }
 
     public function setDefaultValues()
@@ -64,11 +64,11 @@ class GastosSearch extends Gastos
      */
     public function search($params, $user_id = null)
     {
+        $user_id = $user_id ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
 
+        $query = $this->baseQuery()->with(['createdByUser']);
 
-        $query = $this->baseQuery();
-
-        if ($user_id) {
+        if ($user_id !== null) {
             $query->where(['user_id' => $user_id]);
         }
 
@@ -99,12 +99,12 @@ class GastosSearch extends Gastos
         $query->andFilterWhere(['like', 'descripcion', $this->descripcion]);
 
         // Filtrar por nombre de categoría
-        $query->andFilterWhere(['like', 'categorias_gastos.nombre', $this->categoria_nombre]);
+        $query->andFilterWhere(['like', 'gastos_categoria.nombre', $this->categoria_nombre]);
 
         $query->andFilterWhere([
-            'categoria_id' => $this->categoria_id, // Filtro por categoría
+            'gastos.categoria_id' => $this->categoria_id,
+            'gastos.proyecto_id' => $this->proyecto_id,
         ]);
-
 
         return $dataProvider;
     }

@@ -3,16 +3,16 @@
 namespace frontend\controllers;
 
 use Yii;
-use common\models\Gastos\CategoriasGastos;
-use common\models\Gastos\CategoriasGastosDashboardSearch;
-use common\models\Gastos\CategoriasGastosSearch;
+use common\models\Gastos\GastosCategoria;
+use common\models\Gastos\GastosCategoriaDashboardSearch;
+use common\models\Gastos\GastosCategoriaSearch;
 use common\services\GastoService;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * CategoriaGastosController implements the CRUD actions for CategoriasGastos model.
+ * CategoriaGastosController implementa las acciones CRUD para el modelo GastosCategoria.
  */
 class CategoriaGastosController extends Controller
 {
@@ -32,12 +32,12 @@ class CategoriaGastosController extends Controller
     }
 
     /**
-     * Lists all CategoriasGastos models.
+     * Lista todos los modelos GastosCategoria.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new CategoriasGastosSearch();
+        $searchModel = new GastosCategoriaSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -47,7 +47,7 @@ class CategoriaGastosController extends Controller
     }
 
     /**
-     * Displays a single CategoriasGastos model.
+     * Muestra un modelo GastosCategoria.
      * @param int $id ID
      * @return mixed
      */
@@ -59,13 +59,13 @@ class CategoriaGastosController extends Controller
     }
 
     /**
-     * Creates a new CategoriasGastos model.
+     * Crea un nuevo GastosCategoria.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new CategoriasGastos();
+        $model = new GastosCategoria();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['update', 'id' => $model->id]);
@@ -77,7 +77,7 @@ class CategoriaGastosController extends Controller
     }
 
     /**
-     * Updates an existing CategoriasGastos model.
+     * Actualiza un GastosCategoria existente.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
      * @return mixed
@@ -96,7 +96,7 @@ class CategoriaGastosController extends Controller
     }
 
     /**
-     * Deletes an existing CategoriasGastos model.
+     * Elimina un GastosCategoria existente.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
      * @return mixed
@@ -115,15 +115,16 @@ class CategoriaGastosController extends Controller
      */
     public function actionDashboard()
     {
-        $model = new CategoriasGastosDashboardSearch();
+        $model = new GastosCategoriaDashboardSearch();
         $model->load(Yii::$app->request->queryParams);
         $model->setDefaultValues();
 
-        // Filtrar por el usuario actual y el rango de fechas
-        $dataProvider = $model->search(Yii::$app->user->id);
+        $dataProvider = $model->search(Yii::$app->request->queryParams);
 
         // Obtener la data del DataProvider por adelantado para uso posterior
         $data = $dataProvider->getModels();
+
+        $categorias = GastoService::getCategoriasList();
 
         // Check if it's an AJAX request
         if (Yii::$app->request->isAjax) {
@@ -131,30 +132,32 @@ class CategoriaGastosController extends Controller
                 'data' => $data,
                 'dataProvider' => $dataProvider,
                 'searchModel' => $model,
+                'categorias' => $categorias,
             ]);
         }
 
         return $this->render('_dashboard/index', [
             'data' => $data,
             'gastoTotalMes' => GastoService::getTotalDelMes(
-                Yii::$app->request->get('CategoriasGastosDashboardSearch')['year'] ?? date('Y'),
-                Yii::$app->request->get('CategoriasGastosDashboardSearch')['month'] ?? date('m')
+                Yii::$app->request->get('GastosCategoriaDashboardSearch')['year'] ?? date('Y'),
+                Yii::$app->request->get('GastosCategoriaDashboardSearch')['month'] ?? date('m'),
+                null
             ),
             'searchModel' => $model,
             'dataProvider' => $dataProvider,
+            'categorias' => $categorias,
         ]);
     }
 
     /**
-     * Finds the CategoriasGastos model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * Busca el modelo GastosCategoria por clave primaria.
      * @param int $id ID
-     * @return CategoriasGastos the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * @return GastosCategoria
+     * @throws NotFoundHttpException si el modelo no existe
      */
     protected function findModel($id)
     {
-        if (($model = CategoriasGastos::findOne($id)) !== null) {
+        if (($model = GastosCategoria::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

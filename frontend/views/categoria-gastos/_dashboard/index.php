@@ -21,7 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
     'mesActual' => $gastoTotalMes
 ]); ?>
 
-<?php echo $this->render('_search', ['model' => $searchModel]); ?>
+<?php echo $this->render('_search', ['model' => $searchModel, 'categorias' => $categorias ?? []]); ?>
 
 <div class="panel panel-default">
     <div class="panel-heading">

@@ -5,13 +5,11 @@ namespace common\models\Gastos;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Gastos\CategoriasGastos;
-use yii\helpers\VarDumper;
 
 /**
- * CategoriasGastosSearch represents the model behind the search form of `common\models\Gastos\CategoriasGastos`.
+ * GastosCategoriaSearch representa el modelo detrás del formulario de búsqueda de `common\models\Gastos\GastosCategoria`.
  */
-class CategoriasGastosSearch extends CategoriasGastos
+class GastosCategoriaSearch extends GastosCategoria
 {
     public function rules()
     {
@@ -19,16 +17,16 @@ class CategoriasGastosSearch extends CategoriasGastos
             [['id'], 'integer'],
             [['nombre', 'descripcion'], 'safe'],
             [['created_at'], 'date', 'format' => 'php:Y-m-d'],
-            [['gastos_count'], 'integer'], // Asegúrate de que se pueda filtrar
+            [['gastos_count'], 'integer'],
         ];
     }
 
     public function search($params)
     {
-        $query = CategoriasGastos::find()
-            ->select(['categorias_gastos.*', 'COUNT(gastos.id) AS gastos_count'])
-            ->leftJoin('gastos', 'gastos.categoria_id = categorias_gastos.id')
-            ->groupBy('categorias_gastos.id');
+        $query = GastosCategoria::find()
+            ->select(['gastos_categoria.*', 'COUNT(gastos.id) AS gastos_count'])
+            ->leftJoin('gastos', 'gastos.categoria_id = gastos_categoria.id')
+            ->groupBy('gastos_categoria.id');
 
         $attributes = array_keys($this->getAttributes());
 
@@ -44,7 +42,6 @@ class CategoriasGastosSearch extends CategoriasGastos
             return $dataProvider;
         }
 
-        // Filtros
         $query->andFilterWhere(['like', 'nombre', $this->nombre])
             ->andFilterWhere(['like', 'descripcion', $this->descripcion]);
 

@@ -1,10 +1,19 @@
 <?php
 use yii\helpers\Html;
 
-$this->title = 'Dashboard de Gastos e Ingresos';
+$this->title = isset($proyecto) && $proyecto ? 'Dashboard - ' . Html::encode($proyecto->nombre) : 'Dashboard de Gastos e Ingresos';
+if (isset($proyecto) && $proyecto) {
+    $this->params['breadcrumbs'][] = ['label' => $proyecto->nombre, 'url' => ['/dashboard/index', 'proyecto_id' => $proyecto->id]];
+}
 $this->params['breadcrumbs'][] = $this->title;
 
-$year = date('Y'); // Año para el resumen
+$year = $year ?? date('Y');
+$currentYear = (int) date('Y');
+$yearsRange = range($currentYear, $currentYear - 10);
+$baseGastosUrl = ['gastos/index', 'GastosSearch' => ['year' => $year]];
+if (!empty($proyectoId)) {
+    $baseGastosUrl['proyecto_id'] = $proyectoId;
+}
 
 // Nombres de los meses
 $meses = [
@@ -22,7 +31,21 @@ $granTotalIngreso = 0;
 
 <div class="box box-primary">
     <div class="box-header with-border">
-        <h3 class="box-title">Resumen Financiero por Categoría - Año <?= $year ?></h3>
+        <h3 class="box-title">Resumen Financiero por Categoría</h3>
+        <div class="box-tools pull-right">
+            <?= Html::beginForm(['/dashboard/index'], 'get', ['class' => 'form-inline', 'style' => 'display: inline-flex; align-items: center; gap: 8px;']) ?>
+            <?php if (!empty($proyectoId)): ?>
+                <?= Html::hiddenInput('proyecto_id', $proyectoId) ?>
+            <?php endif; ?>
+            <label for="dashboard-year" class="control-label" style="margin: 0;">Año:</label>
+            <?= Html::dropDownList('year', $year, array_combine($yearsRange, $yearsRange), [
+                'id' => 'dashboard-year',
+                'class' => 'form-control input-sm',
+                'style' => 'width: auto;',
+                'onchange' => 'this.form.submit();',
+            ]) ?>
+            <?= Html::endForm() ?>
+        </div>
     </div>
     <div class="box-body table-responsive no-padding">
         <table class="table table-bordered table-hover">
@@ -53,14 +76,12 @@ $granTotalIngreso = 0;
                             $totalCategoria += $monto;
                             $totalesMensuales[$mes] += $monto;
 
+                            $gastosLinkParams = $baseGastosUrl;
+                            $gastosLinkParams['GastosSearch']['categoria_id'] = $categoriaId;
+                            $gastosLinkParams['GastosSearch']['month'] = $mes;
                             $link = Html::a(
                                 '$' . number_format($monto, 2),
-                                ['gastos/index',
-                                'GastosSearch'=>[
-                                    'categoria_id' => $categoriaId, 
-                                    'year' => $year, 
-                                    'month' => $mes
-                                ] ],
+                                $gastosLinkParams,
                                 ['class' => 'btn btn-xs btn-default']
                             );
                             echo '<td>' . $link . '</td>';
