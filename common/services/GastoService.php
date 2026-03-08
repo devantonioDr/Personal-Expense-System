@@ -21,7 +21,7 @@ class GastoService
      */
     public static function getTotalHoy(?int $proyectoId = null, ?int $userId = null): float
     {
-        $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
+        // $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
         $currentTimestamp = time();
         $startOfDay = strtotime('midnight', $currentTimestamp);
         $endOfDay = strtotime('tomorrow', $startOfDay) - 1;
@@ -51,7 +51,7 @@ class GastoService
      */
     public static function getTotalDelMes($year = null, $month = null, ?int $proyectoId = null, ?int $userId = null): float
     {
-        $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
+        // $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
         $year = $year ?? date('Y');
         $month = $month ?? date('m');
 
@@ -97,7 +97,7 @@ class GastoService
      */
     public function getGastosGroupedByCategoriesAndMonths($year, $proyectoId = null, ?int $userId = null)
     {
-        $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
+        // $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
         $query = Gastos::find()
             ->select([
                 'categoria_id',

@@ -19,7 +19,7 @@ class IngresoService
      */
     public static function getTotalDelMes($year = null, $month = null, ?int $proyectoId = null, ?int $userId = null): float
     {
-        $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
+        // $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
         $year = $year ?? date('Y');
         $month = $month ?? date('m');
 
@@ -47,7 +47,7 @@ class IngresoService
      */
     public static function getMonthlyIncome($year, ?int $proyectoId = null, ?int $userId = null): array
     {
-        $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
+        // $userId = $userId ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
         $query = Ingresos::find()
             ->select([
                 new Expression("MONTH(fecha_pago) AS mes"),
