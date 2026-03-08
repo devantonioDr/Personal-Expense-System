@@ -64,7 +64,6 @@ class GastosSearch extends Gastos
      */
     public function search($params, $user_id = null)
     {
-        $user_id = $user_id ?? (Yii::$app->user->isGuest ? null : (int) Yii::$app->user->id);
 
         $query = $this->baseQuery()->with(['createdByUser']);
 
