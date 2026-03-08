@@ -13,13 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="usuario-view box box-primary">
     <div class="box-header">
         <?= Html::a('Editar', ['update', 'id' => $model->id], ['class' => 'btn btn-primary btn-flat']) ?>
-        <?= Html::a('Eliminar', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger btn-flat',
-            'data' => [
-                'confirm' => '¿Está seguro de que desea eliminar este usuario?',
-                'method' => 'post',
-            ],
-        ]) ?>
         <?= Html::a('Volver', ['index'], ['class' => 'btn btn-default btn-flat']) ?>
     </div>
     <div class="box-body table-responsive no-padding">

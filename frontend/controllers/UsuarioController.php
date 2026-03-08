@@ -114,14 +114,14 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Elimina un usuario.
+     * Eliminación de usuarios deshabilitada: se debe contactar al administrador.
      * @param int $id
      * @return mixed
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
-        Yii::$app->session->setFlash('success', 'Usuario eliminado correctamente.');
+        $this->findModel($id); // solo valida que exista
+        Yii::$app->session->setFlash('info', 'Para eliminar un usuario debe contactar al administrador del sistema.');
         return $this->redirect(['index']);
     }
 
